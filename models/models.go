@@ -1,4 +1,4 @@
-package main
+package models
 
 type Challenge struct {
 	ID    string `json:"id"`

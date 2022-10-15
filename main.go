@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
+	"example.com/m/models"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -56,7 +57,7 @@ func makeResponse(targetUrl string) []byte {
 func main() {
 	data := makeResponse("https://codejam.googleapis.com/poll?p=e30")
 	b64 := decodeFromBase64(data)
-	var responseModel AdventureResponse
+	var responseModel models.AdventureResponse
 	err := json.Unmarshal(b64, &responseModel)
 	if err != nil {
 		log.Fatal(err)
@@ -64,7 +65,7 @@ func main() {
 	file, _ := json.MarshalIndent(responseModel, "", "  ")
 	_ = ioutil.WriteFile("adventure_result.json", file, 0644)
 
-	startPagination := ScoreboardPagination{
+	startPagination := models.ScoreboardPagination{
 		MinRank: 1,
 		Count:   50,
 	}
@@ -72,9 +73,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	var result []ScoreboardResponse
+	var result []models.ScoreboardResponse
 	for _, adventure := range responseModel.Adventures {
-		var scoreboardResponse ScoreboardResponse
+		var scoreboardResponse models.ScoreboardResponse
 		scoreboardResponse.AdventureID = adventure.ID
 		scoreboardResponse.AdventureName = adventure.Title
 
@@ -83,7 +84,7 @@ func main() {
 			resp := makeResponse(newUrl)
 			data := decodeFromBase64(resp)
 
-			var scoreboard Scoreboard
+			var scoreboard models.Scoreboard
 			err = json.Unmarshal(data, &scoreboard)
 			if err != nil {
 				log.Fatal(err)
@@ -95,7 +96,7 @@ func main() {
 			var sum int64
 			sum = 51
 			for sum < scoreboard.Size {
-				pagination := ScoreboardPagination{
+				pagination := models.ScoreboardPagination{
 					MinRank: sum,
 					Count:   50,
 				}
@@ -108,7 +109,7 @@ func main() {
 				resp = makeResponse(newUrl)
 				data = decodeFromBase64(resp)
 
-				var includedScoreboard Scoreboard
+				var includedScoreboard models.Scoreboard
 				err = json.Unmarshal(data, &includedScoreboard)
 				if err != nil {
 					log.Fatal(err)
