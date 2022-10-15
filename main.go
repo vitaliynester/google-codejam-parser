@@ -80,6 +80,8 @@ func main() {
 		scoreboardResponse.AdventureName = adventure.Title
 
 		for _, challenge := range adventure.Challenges {
+			var challengeResponse models.ChallengeResponse
+			challengeResponse.Challenge = challenge
 			newUrl := fmt.Sprintf("https://codejam.googleapis.com/scoreboard/%v/poll?p=%v", challenge.ID, startPaginationStr)
 			resp := makeResponse(newUrl)
 			data := decodeFromBase64(resp)
@@ -89,9 +91,7 @@ func main() {
 			if err != nil {
 				log.Fatal(err)
 			}
-			scoreboardResponse.ChallengeID = challenge.ID
-			scoreboardResponse.ChallengeName = challenge.Title
-			scoreboardResponse.UserScores = append(scoreboardResponse.UserScores, scoreboard.UserScores...)
+			challengeResponse.UserScores = append(challengeResponse.UserScores, scoreboard.UserScores...)
 
 			var sum int64
 			sum = 51
@@ -114,10 +114,11 @@ func main() {
 				if err != nil {
 					log.Fatal(err)
 				}
-				scoreboardResponse.UserScores = append(scoreboardResponse.UserScores, includedScoreboard.UserScores...)
+				challengeResponse.UserScores = append(challengeResponse.UserScores, includedScoreboard.UserScores...)
 
 				sum += 50
 			}
+			scoreboardResponse.Challenges = append(scoreboardResponse.Challenges, challengeResponse)
 
 			fmt.Printf("Количество участников в %v, %v: %v\n", adventure.Title, challenge.Title, scoreboard.Size)
 		}

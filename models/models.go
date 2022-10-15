@@ -32,10 +32,13 @@ type Scoreboard struct {
 	UserScores []UserScore `json:"user_scores"`
 }
 
+type ChallengeResponse struct {
+	Challenge  Challenge   `json:"challenge"`
+	UserScores []UserScore `json:"user_scores"`
+}
+
 type ScoreboardResponse struct {
-	AdventureName string      `json:"adventure_name"`
-	AdventureID   string      `json:"adventure_id"`
-	ChallengeName string      `json:"challenge_name"`
-	ChallengeID   string      `json:"challenge_id"`
-	UserScores    []UserScore `json:"user_scores"`
+	AdventureName string              `json:"adventure_name"`
+	AdventureID   string              `json:"adventure_id"`
+	Challenges    []ChallengeResponse `json:"challenges"`
 }
