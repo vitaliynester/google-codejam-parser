@@ -62,8 +62,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	file, _ := json.MarshalIndent(responseModel, "", "  ")
-	_ = ioutil.WriteFile("adventure_result.json", file, 0644)
 
 	startPagination := models.ScoreboardPagination{
 		MinRank: 1,
@@ -126,4 +124,52 @@ func main() {
 	}
 	resultFile, _ := json.MarshalIndent(result, "", "  ")
 	_ = ioutil.WriteFile("result.json", resultFile, 0644)
+
+	var results []models.ScoreboardResponse
+	info, _ := ioutil.ReadFile("result.json")
+	err = json.Unmarshal(info, &results)
+	if err != nil {
+		log.Fatal(err)
+	}
+	var resultToFile []models.Response
+	totalFiles := 0
+	for _, adventure := range result {
+		for _, challenge := range adventure.Challenges {
+			for _, userScore := range challenge.UserScores {
+				attemptRequest := models.AttemptRequest{
+					CompetitorID:   userScore.Competitor.ID,
+					NonFinalResult: false,
+				}
+				attemptRequestStr, _ := encodeToBase64(attemptRequest)
+				newUrl := fmt.Sprintf("https://codejam.googleapis.com/attempts/%v/poll?p=%v", challenge.Challenge.ID, attemptRequestStr)
+				resp := makeResponse(newUrl)
+				data := decodeFromBase64(resp)
+
+				var attemptsResponse models.AttemptsResult
+				err = json.Unmarshal(data, &attemptsResponse)
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				fmt.Printf("Количество файлов у %v в соревновании %v: %v шт.\n", userScore.Competitor.Name, challenge.Challenge.Title, len(attemptsResponse.Attempts))
+				totalFiles += len(attemptsResponse.Attempts)
+				for _, attempt := range attemptsResponse.Attempts {
+					toFile := models.Response{
+						FileName:      attempt.SourceFile.Filename,
+						FileUrl:       attempt.SourceFile.Url,
+						UserID:        userScore.Competitor.ID,
+						UserName:      userScore.Competitor.Name,
+						ChallengeID:   challenge.Challenge.ID,
+						ChallengeName: challenge.Challenge.Title,
+						AdventureID:   adventure.AdventureID,
+						AdventureName: adventure.AdventureName,
+					}
+					resultToFile = append(resultToFile, toFile)
+				}
+			}
+		}
+	}
+	fmt.Printf("Суммарное количество файлов для загрузки: %v\n", totalFiles)
+	resultFile, _ = json.MarshalIndent(resultToFile, "", "  ")
+	_ = ioutil.WriteFile("final_result.json", resultFile, 0644)
 }
