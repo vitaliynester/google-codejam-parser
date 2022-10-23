@@ -9,9 +9,11 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
+	"time"
 )
 
 func encodeToBase64(v interface{}) (string, error) {
@@ -166,6 +168,10 @@ func main() {
 					}
 					resultToFile = append(resultToFile, toFile)
 				}
+				rand.Seed(time.Now().UnixNano())
+				n := rand.Intn(10)
+				fmt.Printf("Пауза на %d секунд...\n", n)
+				time.Sleep(time.Duration(n) * time.Second)
 			}
 		}
 	}
