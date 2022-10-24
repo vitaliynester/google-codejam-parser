@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
+	"strings"
 	"time"
 )
 
@@ -57,85 +58,88 @@ func makeResponse(targetUrl string) []byte {
 }
 
 func main() {
-	data := makeResponse("https://codejam.googleapis.com/poll?p=e30")
-	b64 := decodeFromBase64(data)
-	var responseModel models.AdventureResponse
-	err := json.Unmarshal(b64, &responseModel)
-	if err != nil {
-		log.Fatal(err)
-	}
+	//data := makeResponse("https://codejam.googleapis.com/poll?p=e30")
+	//b64 := decodeFromBase64(data)
+	//var responseModel models.AdventureResponse
+	//err := json.Unmarshal(b64, &responseModel)
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//
+	//startPagination := models.ScoreboardPagination{
+	//	MinRank: 1,
+	//	Count:   50,
+	//}
+	//startPaginationStr, err := encodeToBase64(startPagination)
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//var result []models.ScoreboardResponse
+	//for _, adventure := range responseModel.Adventures {
+	//	var scoreboardResponse models.ScoreboardResponse
+	//	scoreboardResponse.AdventureID = adventure.ID
+	//	scoreboardResponse.AdventureName = adventure.Title
+	//
+	//	for _, challenge := range adventure.Challenges {
+	//		var challengeResponse models.ChallengeResponse
+	//		challengeResponse.Challenge = challenge
+	//		newUrl := fmt.Sprintf("https://codejam.googleapis.com/scoreboard/%v/poll?p=%v", challenge.ID, startPaginationStr)
+	//		resp := makeResponse(newUrl)
+	//		data := decodeFromBase64(resp)
+	//
+	//		var scoreboard models.Scoreboard
+	//		err = json.Unmarshal(data, &scoreboard)
+	//		if err != nil {
+	//			log.Fatal(err)
+	//		}
+	//		challengeResponse.UserScores = append(challengeResponse.UserScores, scoreboard.UserScores...)
+	//
+	//		var sum int64
+	//		sum = 51
+	//		for sum < scoreboard.Size {
+	//			pagination := models.ScoreboardPagination{
+	//				MinRank: sum,
+	//				Count:   50,
+	//			}
+	//			paginationStr, err := encodeToBase64(pagination)
+	//			if err != nil {
+	//				log.Fatal(err)
+	//			}
+	//
+	//			newUrl = fmt.Sprintf("https://codejam.googleapis.com/scoreboard/%v/poll?p=%v", challenge.ID, paginationStr)
+	//			resp = makeResponse(newUrl)
+	//			data = decodeFromBase64(resp)
+	//
+	//			var includedScoreboard models.Scoreboard
+	//			err = json.Unmarshal(data, &includedScoreboard)
+	//			if err != nil {
+	//				log.Fatal(err)
+	//			}
+	//			challengeResponse.UserScores = append(challengeResponse.UserScores, includedScoreboard.UserScores...)
+	//
+	//			sum += 50
+	//		}
+	//		scoreboardResponse.Challenges = append(scoreboardResponse.Challenges, challengeResponse)
+	//
+	//		fmt.Printf("Количество участников в %v, %v: %v\n", adventure.Title, challenge.Title, scoreboard.Size)
+	//	}
+	//	result = append(result, scoreboardResponse)
+	//}
+	//resultFile, _ := json.MarshalIndent(result, "", "  ")
+	//_ = ioutil.WriteFile("result.json", resultFile, 0644)
 
-	startPagination := models.ScoreboardPagination{
-		MinRank: 1,
-		Count:   50,
-	}
-	startPaginationStr, err := encodeToBase64(startPagination)
-	if err != nil {
-		log.Fatal(err)
-	}
 	var result []models.ScoreboardResponse
-	for _, adventure := range responseModel.Adventures {
-		var scoreboardResponse models.ScoreboardResponse
-		scoreboardResponse.AdventureID = adventure.ID
-		scoreboardResponse.AdventureName = adventure.Title
-
-		for _, challenge := range adventure.Challenges {
-			var challengeResponse models.ChallengeResponse
-			challengeResponse.Challenge = challenge
-			newUrl := fmt.Sprintf("https://codejam.googleapis.com/scoreboard/%v/poll?p=%v", challenge.ID, startPaginationStr)
-			resp := makeResponse(newUrl)
-			data := decodeFromBase64(resp)
-
-			var scoreboard models.Scoreboard
-			err = json.Unmarshal(data, &scoreboard)
-			if err != nil {
-				log.Fatal(err)
-			}
-			challengeResponse.UserScores = append(challengeResponse.UserScores, scoreboard.UserScores...)
-
-			var sum int64
-			sum = 51
-			for sum < scoreboard.Size {
-				pagination := models.ScoreboardPagination{
-					MinRank: sum,
-					Count:   50,
-				}
-				paginationStr, err := encodeToBase64(pagination)
-				if err != nil {
-					log.Fatal(err)
-				}
-
-				newUrl = fmt.Sprintf("https://codejam.googleapis.com/scoreboard/%v/poll?p=%v", challenge.ID, paginationStr)
-				resp = makeResponse(newUrl)
-				data = decodeFromBase64(resp)
-
-				var includedScoreboard models.Scoreboard
-				err = json.Unmarshal(data, &includedScoreboard)
-				if err != nil {
-					log.Fatal(err)
-				}
-				challengeResponse.UserScores = append(challengeResponse.UserScores, includedScoreboard.UserScores...)
-
-				sum += 50
-			}
-			scoreboardResponse.Challenges = append(scoreboardResponse.Challenges, challengeResponse)
-
-			fmt.Printf("Количество участников в %v, %v: %v\n", adventure.Title, challenge.Title, scoreboard.Size)
-		}
-		result = append(result, scoreboardResponse)
-	}
-	resultFile, _ := json.MarshalIndent(result, "", "  ")
-	_ = ioutil.WriteFile("result.json", resultFile, 0644)
-
-	var results []models.ScoreboardResponse
 	info, _ := ioutil.ReadFile("result.json")
-	err = json.Unmarshal(info, &results)
+	err := json.Unmarshal(info, &result)
 	if err != nil {
 		log.Fatal(err)
 	}
 	var resultToFile []models.Response
 	totalFiles := 0
 	for _, adventure := range result {
+		if !strings.Contains(adventure.AdventureName, "2018") || !strings.Contains(adventure.AdventureName, "2019") || !strings.Contains(adventure.AdventureName, "2020") || !strings.Contains(adventure.AdventureName, "2021") || !strings.Contains(adventure.AdventureName, "2022") {
+			continue
+		}
 		for _, challenge := range adventure.Challenges {
 			for _, userScore := range challenge.UserScores {
 				attemptRequest := models.AttemptRequest{
@@ -169,13 +173,13 @@ func main() {
 					resultToFile = append(resultToFile, toFile)
 				}
 				rand.Seed(time.Now().UnixNano())
-				n := rand.Intn(10)
+				n := rand.Intn(5)
 				fmt.Printf("Пауза на %d секунд...\n", n)
 				time.Sleep(time.Duration(n) * time.Second)
 			}
 		}
 	}
 	fmt.Printf("Суммарное количество файлов для загрузки: %v\n", totalFiles)
-	resultFile, _ = json.MarshalIndent(resultToFile, "", "  ")
+	resultFile, _ := json.MarshalIndent(resultToFile, "", "  ")
 	_ = ioutil.WriteFile("final_result.json", resultFile, 0644)
 }
