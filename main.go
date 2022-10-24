@@ -137,8 +137,14 @@ func main() {
 	var resultToFile []models.Response
 	totalFiles := 0
 	for _, adventure := range result {
-		if !strings.Contains(adventure.AdventureName, "2018") || !strings.Contains(adventure.AdventureName, "2019") || !strings.Contains(adventure.AdventureName, "2020") || !strings.Contains(adventure.AdventureName, "2021") || !strings.Contains(adventure.AdventureName, "2022") {
-			continue
+		if !strings.Contains(adventure.AdventureName, "2019") {
+			if !strings.Contains(adventure.AdventureName, "2020") {
+				if !strings.Contains(adventure.AdventureName, "2021") {
+					if !strings.Contains(adventure.AdventureName, "2022") {
+						continue
+					}
+				}
+			}
 		}
 		for _, challenge := range adventure.Challenges {
 			for _, userScore := range challenge.UserScores {
@@ -157,7 +163,7 @@ func main() {
 					log.Fatal(err)
 				}
 
-				fmt.Printf("Количество файлов у %v в соревновании %v: %v шт.\n", userScore.Competitor.Name, challenge.Challenge.Title, len(attemptsResponse.Attempts))
+				fmt.Printf("Количество файлов у %v в соревновании %v, %v: %v шт.\n", userScore.Competitor.Name, challenge.Challenge.Title, adventure.AdventureName, len(attemptsResponse.Attempts))
 				totalFiles += len(attemptsResponse.Attempts)
 				for _, attempt := range attemptsResponse.Attempts {
 					toFile := models.Response{
