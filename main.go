@@ -134,13 +134,13 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	var resultToFile []models.Response
 	totalFiles := 0
 	for _, adventure := range result {
-		if !strings.Contains(adventure.AdventureName, "2019") {
-			if !strings.Contains(adventure.AdventureName, "2020") {
-				if !strings.Contains(adventure.AdventureName, "2021") {
-					if !strings.Contains(adventure.AdventureName, "2022") {
+		var resultToFile []models.Response
+		if !strings.Contains(adventure.AdventureName, "Code Jam 2019") {
+			if !strings.Contains(adventure.AdventureName, "Code Jam 2020") {
+				if !strings.Contains(adventure.AdventureName, "Code Jam 2021") {
+					if !strings.Contains(adventure.AdventureName, "Code Jam 2022") {
 						continue
 					}
 				}
@@ -178,14 +178,15 @@ func main() {
 					}
 					resultToFile = append(resultToFile, toFile)
 				}
-				rand.Seed(time.Now().UnixNano())
-				n := rand.Intn(5)
-				fmt.Printf("Пауза на %d секунд...\n", n)
-				time.Sleep(time.Duration(n) * time.Second)
 			}
 		}
+		resultFile, _ := json.MarshalIndent(resultToFile, "", "  ")
+		_ = ioutil.WriteFile(fmt.Sprintf("final_result_adv_%v.json", adventure.AdventureID), resultFile, 0644)
+
+		rand.Seed(time.Now().UnixNano())
+		n := rand.Intn(5)
+		fmt.Printf("Пауза на %d секунд...\n", n)
+		time.Sleep(time.Duration(n) * time.Second)
 	}
 	fmt.Printf("Суммарное количество файлов для загрузки: %v\n", totalFiles)
-	resultFile, _ := json.MarshalIndent(resultToFile, "", "  ")
-	_ = ioutil.WriteFile("final_result.json", resultFile, 0644)
 }
