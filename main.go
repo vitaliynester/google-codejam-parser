@@ -137,11 +137,13 @@ func main() {
 	totalFiles := 0
 	for _, adventure := range result {
 		var resultToFile []models.Response
-		if !strings.Contains(adventure.AdventureName, "Code Jam 2019") {
-			if !strings.Contains(adventure.AdventureName, "Code Jam 2020") {
-				if !strings.Contains(adventure.AdventureName, "Code Jam 2021") {
-					if !strings.Contains(adventure.AdventureName, "Code Jam 2022") {
-						continue
+		if !strings.Contains(adventure.AdventureName, "Code Jam 2018") {
+			if !strings.Contains(adventure.AdventureName, "Code Jam 2019") {
+				if !strings.Contains(adventure.AdventureName, "Code Jam 2020") {
+					if !strings.Contains(adventure.AdventureName, "Code Jam 2021") {
+						if !strings.Contains(adventure.AdventureName, "Code Jam 2022") {
+							continue
+						}
 					}
 				}
 			}
